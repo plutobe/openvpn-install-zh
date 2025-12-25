@@ -1,76 +1,76 @@
-# openvpn-install
+# openvpn-install 中文版
 
 [![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/angristan)
 
-OpenVPN installer for Debian, Ubuntu, Fedora, openSUSE, CentOS, Amazon Linux, Arch Linux, Oracle Linux, Rocky Linux and AlmaLinux.
+适用于 Debian, Ubuntu, Fedora, openSUSE, CentOS, Amazon Linux, Arch Linux, Oracle Linux, Rocky Linux 和 AlmaLinux 的 OpenVPN 安装器。
 
-This script will let you setup and manage your own secure VPN server in just a few seconds.
+这个脚本可以让您在几秒钟内设置和管理自己的安全 VPN 服务器。
 
-## What is this?
+## 这是什么？
 
-This script is meant to be run on your own server, whether it's a VPS or a dedicated server, or even a computer at home.
+这个脚本旨在在您自己的服务器上运行，无论是 VPS、专用服务器，甚至是家用电脑。
 
-Once set up, you will be able to generate client configuration files for every device you want to connect.
+设置完成后，您将能够为每个想要连接的设备生成客户端配置文件。
 
-Each client will be able to route its internet traffic through the server, fully encrypted.
+每个客户端都可以通过服务器路由其互联网流量，并且完全加密。
 
 ```mermaid
 graph LR
-  A[Phone] -->|Encrypted| VPN
-  B[Laptop] -->|Encrypted| VPN
-  C[Computer] -->|Encrypted| VPN
+  A[手机] -->|加密| VPN
+  B[笔记本电脑] -->|加密| VPN
+  C[计算机] -->|加密| VPN
 
-  VPN[OpenVPN Server]
+  VPN[OpenVPN 服务器]
 
-  VPN --> I[Internet]
+  VPN --> I[互联网]
 ```
 
-## Why OpenVPN?
+## 为什么选择 OpenVPN？
 
-OpenVPN was the de facto standard for open-source VPNs when this script was created. WireGuard came later and is simpler and faster for most use cases. Check out [wireguard-install](https://github.com/angristan/wireguard-install).
+当这个脚本创建时，OpenVPN 是开源 VPN 的事实上的标准。WireGuard 后来出现，对于大多数用例来说更简单、更快。请查看 [wireguard-install](https://github.com/angristan/wireguard-install)。
 
-That said, OpenVPN still makes sense when you need:
+也就是说，当您需要以下功能时，OpenVPN 仍然是有意义的：
 
-- **TCP support**: works in restrictive environments where UDP is blocked (corporate networks, airports, hotels, etc.)
-- **Password-protected private keys**: WireGuard configs store the private key in plain text
-- **Legacy compatibility**: clients exist for pretty much every platform, including older systems
+- **TCP 支持**：在 UDP 被阻止的限制性环境中工作（企业网络、机场、酒店等）
+- **密码保护的私钥**：WireGuard 配置以明文形式存储私钥
+- **旧版兼容性**：客户端几乎适用于所有平台，包括较旧的系统
 
-## Features
+## 特性
 
-- Installs and configures a ready-to-use OpenVPN server
-- CLI interface for automation and scripting (non-interactive mode with JSON output)
-- Certificate renewal for both client and server certificates
-- List and monitor connected clients
-- Immediate client disconnect on certificate revocation (via management interface)
-- Uses [official OpenVPN repositories](https://community.openvpn.net/openvpn/wiki/OpenvpnSoftwareRepos) when possible for the latest stable releases
-- Firewall rules and forwarding managed seamlessly (native firewalld and nftables support, iptables fallback)
-- Configurable VPN subnets (IPv4: default `10.8.0.0/24`, IPv6: default `fd42:42:42:42::/112`)
-- Configurable tunnel MTU (default: `1500`)
-- If needed, the script can cleanly remove OpenVPN, including configuration and firewall rules
-- Customisable encryption settings, enhanced default settings (see [Security and Encryption](#security-and-encryption) below)
-- Uses latest OpenVPN features when available (see [Security and Encryption](#security-and-encryption) below)
-- Variety of DNS resolvers to be pushed to the clients
-- Choice to use a self-hosted resolver with Unbound (supports already existing Unbound installations)
-- Choice between TCP and UDP
-- Flexible IPv4/IPv6 support:
-  - IPv4 or IPv6 server endpoint (how clients connect)
-  - IPv4-only, IPv6-only, or dual-stack clients (VPN addressing and internet access)
-  - All combinations supported: 4→4, 4→4/6, 4→6, 6→4, 6→6, 6→4/6
-  - Automatic leak prevention: blocks undesired protocol in single-stack modes
-- Unprivileged mode: run as `nobody`/`nogroup`
-- Block DNS leaks on Windows 10
-- Randomised server certificate name
-- Choice to protect clients with a password (private key encryption)
-- Option to allow multiple devices to use the same client profile simultaneously (disables persistent IP addresses)
-- **Peer fingerprint authentication** (OpenVPN 2.6+): Simplified WireGuard-like authentication without a CA
-- Many other little things!
+- 安装并配置一个即用型 OpenVPN 服务器
+- 用于自动化和脚本编写的 CLI 界面（带有 JSON 输出的非交互式模式）
+- 客户端和服务器证书的证书续订功能
+- 列出并监控已连接的客户端
+- 证书吊销时立即断开客户端连接（通过管理界面）
+- 尽可能使用 [官方 OpenVPN 仓库](https://community.openvpn.net/openvpn/wiki/OpenvpnSoftwareRepos) 获取最新稳定版本
+- 防火墙规则和转发管理无缝（原生支持 firewalld 和 nftables，iptables 作为后备）
+- 可配置的 VPN 子网（IPv4：默认 `10.8.0.0/24`，IPv6：默认 `fd42:42:42:42::/112`）
+- 可配置的隧道 MTU（默认：`1500`）
+- 如有需要，脚本可以干净地移除 OpenVPN，包括配置和防火墙规则
+- 可自定义的加密设置，增强的默认设置（请参阅下方的 [安全性和加密](#security-and-encryption)）
+- 尽可能使用最新的 OpenVPN 功能（请参阅下方的 [安全性和加密](#security-and-encryption)）
+- 多种可推送给客户端的 DNS 解析器
+- 选择使用带有 Unbound 的自托管解析器（支持已有的 Unbound 安装）
+- 支持 TCP 和 UDP 协议选择
+- 灵活的 IPv4/IPv6 支持：
+  - IPv4 或 IPv6 服务器端点（客户端如何连接）
+  - 仅 IPv4、仅 IPv6 或双栈客户端（VPN 寻址和互联网访问）
+  - 支持所有组合：4→4, 4→4/6, 4→6, 6→4, 6→6, 6→4/6
+  - 自动防止泄漏：在单栈模式下阻止不需要的协议
+- 非特权模式：以 `nobody`/`nogroup` 身份运行
+- 阻止 Windows 10 上的 DNS 泄漏
+- 随机化的服务器证书名称
+- 选择使用密码保护客户端（私钥加密）
+- 允许多个设备同时使用同一个客户端配置文件的选项（禁用持久 IP 地址）
+- **对等指纹认证**（OpenVPN 2.6+）：简化的类 WireGuard 认证，无需 CA
+- 许多其他小功能！
 
-## Compatibility
+## 兼容性
 
-The script supports these Linux distributions:
+该脚本支持以下 Linux 发行版：
 
-|                     | Support |
-| ------------------- | ------- |
+|                     | 支持 |
+| ------------------- | ---- |
 | AlmaLinux >= 8      | ✅ 🤖   |
 | Amazon Linux 2023   | ✅ 🤖   |
 | Arch Linux          | ✅ 🤖   |
@@ -83,117 +83,117 @@ The script supports these Linux distributions:
 | Rocky Linux >= 8    | ✅ 🤖   |
 | Ubuntu >= 18.04     | ✅ 🤖   |
 
-To be noted:
+注意事项：
 
-- The script is regularly tested against the distributions marked with a 🤖 only.
-  - It's only tested on `amd64` architecture.
-- The script requires `systemd`.
+- 脚本仅针对标记有 🤖 的发行版进行定期测试。
+  - 仅在 `amd64` 架构上测试过。
+- 脚本需要 `systemd`。
 
-### Recommended providers
+### 推荐的提供商
 
-- [Vultr](https://www.vultr.com/?ref=8948982-8H): Worldwide locations, IPv6 support, starting at \$2.5/month
-- [Hetzner](https://hetzner.cloud/?ref=ywtlvZsjgeDq): Worldwide locations, IPv6, 20 TB of traffic, starting at €3.59/month
-- [Digital Ocean](https://m.do.co/c/ed0ba143fe53): Worldwide locations, IPv6 support, starting at \$4/month
+- [Vultr](https://www.vultr.com/?ref=8948982-8H)：全球位置，支持 IPv6，起价 \$2.5/月
+- [Hetzner](https://hetzner.cloud/?ref=ywtlvZsjgeDq)：全球位置，支持 IPv6，20 TB 流量，起价 €3.59/月
+- [Digital Ocean](https://m.do.co/c/ed0ba143fe53)：全球位置，支持 IPv6，起价 \$4/月
 
-## Usage
+## 使用方法
 
-First, download the script on your server and make it executable:
+首先，在您的服务器上下载脚本并使其可执行：
 
 ```bash
-curl -O https://raw.githubusercontent.com/angristan/openvpn-install/master/openvpn-install.sh
+curl -O https://raw.githubusercontent.com/plutobe/openvpn-install-zh/master/openvpn-install.sh
 chmod +x openvpn-install.sh
 ```
 
-You need to run the script as root and have the TUN module enabled.
+您需要以root用户身份运行脚本，并启用TUN模块。
 
-### Interactive Mode
+### 交互式模式
 
-The easiest way to get started is the interactive menu:
+最简单的开始方式是使用交互式菜单：
 
 ```bash
 ./openvpn-install.sh interactive
 ```
 
-This will guide you through installation and client management.
+这将引导您完成安装和客户端管理。
 
-In your home directory, you will have `.ovpn` files. These are the client configuration files. Download them from your server (using `scp` for example) and connect using your favorite OpenVPN client.
+在您的主目录中，您将拥有 `.ovpn` 文件。这些是客户端配置文件。从服务器下载它们（例如使用 `scp`），并使用您喜欢的 OpenVPN 客户端连接。
 
-If you have any question, head to the [FAQ](#faq) first. And if you need help, you can open a [discussion](https://github.com/angristan/openvpn-install/discussions). Please search existing issues and discussions first.
+如果您有任何问题，请先查看 [FAQ](#faq)。如果您需要帮助，可以打开一个 [讨论](https://github.com/angristan/openvpn-install/discussions)。请先搜索现有的问题和讨论。
 
-### CLI Mode
+### CLI 模式
 
 > [!WARNING]
-> API compatibility is not guaranteed. Breaking changes may occur between versions. If you use this script programmatically (e.g., in automation or CI/CD), pin to a specific commit rather than using the master branch.
+> 不保证 API 兼容性。版本之间可能会发生破坏性变更。如果您以编程方式使用此脚本（例如，在自动化或 CI/CD 中），请固定到特定提交，而不是使用 master 分支。
 
-For automation and scripting, use the CLI interface:
+对于自动化和脚本编写，请使用 CLI 界面：
 
 ```bash
-# Install with defaults
+# 使用默认值安装
 ./openvpn-install.sh install
 
-# Add a client
+# 添加客户端
 ./openvpn-install.sh client add alice
 
-# List clients
+# 列出客户端
 ./openvpn-install.sh client list
 
-# Revoke a client (immediately disconnects if connected)
+# 吊销客户端（如果已连接则立即断开）
 ./openvpn-install.sh client revoke alice
 ```
 
-#### Commands
+#### 命令
 
 ```text
-openvpn-install <command> [options]
+openvpn-install <命令> [选项]
 
-Commands:
-  install       Install and configure OpenVPN server
-  uninstall     Remove OpenVPN server
-  client        Manage client certificates
-  server        Server management
-  interactive   Launch interactive menu
+命令:
+  install       安装并配置 OpenVPN 服务器
+  uninstall     移除 OpenVPN 服务器
+  client        管理客户端证书
+  server        服务器管理
+  interactive   启动交互式菜单
 
-Global Options:
-  --verbose     Show detailed output
-  --log <path>  Log file path (default: openvpn-install.log)
-  --no-log      Disable file logging
-  --no-color    Disable colored output
-  -h, --help    Show help
+全局选项:
+  --verbose     显示详细输出
+  --log <路径>  日志文件路径（默认：openvpn-install.log）
+  --no-log      禁用文件日志记录
+  --no-color    禁用彩色输出
+  -h, --help    显示帮助
 ```
 
-Run `./openvpn-install.sh <command> --help` for command-specific options.
+运行 `./openvpn-install.sh <命令> --help` 获取命令特定的选项。
 
-#### Client Management
+#### 客户端管理
 
 ```bash
-# Add a new client
+# 添加新客户端
 ./openvpn-install.sh client add alice
 
-# Add a password-protected client
+# 添加受密码保护的客户端
 ./openvpn-install.sh client add bob --password
 
-# Revoke a client
+# 吊销客户端
 ./openvpn-install.sh client revoke alice
 
-# Renew a client certificate
+# 续订客户端证书
 ./openvpn-install.sh client renew bob --cert-days 365
 ```
 
-List all clients:
+列出所有客户端：
 
 ```text
 $ ./openvpn-install.sh client list
-══ Client Certificates ══
-[INFO] Found 3 client certificate(s)
+══ 客户端证书 ══
+[INFO] 找到 3 个客户端证书
 
-   Name      Status   Expiry      Remaining
-   ----      ------   ------      ---------
-   alice     Valid    2035-01-15  3650 days
-   bob       Valid    2035-01-15  3650 days
-   charlie   Revoked  2035-01-15  unknown
+   名称      状态      过期时间       剩余时间
+   ----      ------   ---------      ---------
+   alice     Valid    2035-01-15  3650 天
+   bob       Valid    2035-01-15  3650 天
+   charlie   Revoked  2035-01-15  未知
 ```
 
-JSON output for scripting:
+用于脚本编写的 JSON 输出：
 
 ```text
 $ ./openvpn-install.sh client list --format json | jq
@@ -221,64 +221,64 @@ $ ./openvpn-install.sh client list --format json | jq
 }
 ```
 
-#### Server Management
+#### 服务器管理
 
 ```bash
-# Renew server certificate
+# 续订服务器证书
 ./openvpn-install.sh server renew
 
-# Uninstall OpenVPN
+# 卸载 OpenVPN
 ./openvpn-install.sh uninstall
 ```
 
-Show connected clients (data refreshes every 60 seconds):
+显示已连接的客户端（数据每 60 秒刷新一次）：
 
 ```text
 $ ./openvpn-install.sh server status
-══ Connected Clients ══
-[INFO] Found 2 connected client(s)
+══ 已连接客户端 ══
+[INFO] 找到 2 个已连接客户端
 
-   Name    Real Address          VPN IP      Connected Since   Transfer
+   名称    真实地址             VPN IP      连接时间         传输数据
    ----    ------------          ------      ---------------   --------
    alice   203.0.113.45:52341    10.8.0.2    2025-01-15 14:32  ↓1.2M ↑500K
    bob     198.51.100.22:41892   10.8.0.3    2025-01-15 09:15  ↓800K ↑200K
 
-[INFO] Note: Data refreshes every 60 seconds.
+[INFO] 注意：数据每 60 秒刷新一次。
 ```
 
-#### Install Options
+#### 安装选项
 
-The `install` command supports many options for customization:
+`install` 命令支持多种自定义选项：
 
 ```bash
-# Custom port and protocol
+# 自定义端口和协议
 ./openvpn-install.sh install --port 443 --protocol tcp
 
-# Custom DNS provider
+# 自定义 DNS 提供商
 ./openvpn-install.sh install --dns quad9
 
-# Custom encryption settings
+# 自定义加密设置
 ./openvpn-install.sh install --cipher AES-256-GCM --cert-type rsa --rsa-bits 4096
 
-# Custom VPN subnet
+# 自定义 VPN 子网
 ./openvpn-install.sh install --subnet-ipv4 10.9.0.0
 
-# Enable dual-stack (IPv4 + IPv6) for clients
+# 为客户端启用双栈（IPv4 + IPv6）
 ./openvpn-install.sh install --client-ipv4 --client-ipv6
 
-# IPv6-only clients (no IPv4)
+# 仅 IPv6 客户端（无 IPv4）
 ./openvpn-install.sh install --no-client-ipv4 --client-ipv6
 
-# IPv6 endpoint (server listens on IPv6, clients connect via IPv6)
+# IPv6 端点（服务器监听 IPv6，客户端通过 IPv6 连接）
 ./openvpn-install.sh install --endpoint-type 6 --endpoint 2001:db8::1
 
-# Custom IPv6 subnet for dual-stack setup
+# 双栈设置的自定义 IPv6 子网
 ./openvpn-install.sh install --client-ipv6 --subnet-ipv6 fd00:1234:5678::
 
-# Skip initial client creation
+# 跳过初始客户端创建
 ./openvpn-install.sh install --no-client
 
-# Full example with multiple options
+# 带有多个选项的完整示例
 ./openvpn-install.sh install \
   --port 443 \
   --protocol tcp \
@@ -288,56 +288,56 @@ The `install` command supports many options for customization:
   --client-cert-days 365
 ```
 
-**Network Options:**
+**网络选项：**
 
-- `--endpoint <host>` - Public IP or hostname for clients (default: auto-detected)
-- `--endpoint-type <4|6>` - Endpoint IP version (default: `4`)
-- `--ip <addr>` - Server listening IP (default: auto-detected)
-- `--client-ipv4` - Enable IPv4 for VPN clients (default: enabled)
-- `--no-client-ipv4` - Disable IPv4 for VPN clients
-- `--client-ipv6` - Enable IPv6 for VPN clients (default: disabled)
-- `--no-client-ipv6` - Disable IPv6 for VPN clients
-- `--subnet-ipv4 <x.x.x.0>` - IPv4 VPN subnet (default: `10.8.0.0`)
-- `--subnet-ipv6 <prefix>` - IPv6 VPN subnet (default: `fd42:42:42:42::`)
-- `--port <num>` - OpenVPN port (default: `1194`)
-- `--port-random` - Use random port (49152-65535)
-- `--protocol <udp|tcp>` - Protocol (default: `udp`)
-- `--mtu <size>` - Tunnel MTU (default: `1500`)
+- `--endpoint <host>` - 客户端的公共 IP 或主机名（默认：自动检测）
+- `--endpoint-type <4|6>` - 端点 IP 版本（默认：`4`）
+- `--ip <addr>` - 服务器监听 IP（默认：自动检测）
+- `--client-ipv4` - 为 VPN 客户端启用 IPv4（默认：启用）
+- `--no-client-ipv4` - 为 VPN 客户端禁用 IPv4
+- `--client-ipv6` - 为 VPN 客户端启用 IPv6（默认：禁用）
+- `--no-client-ipv6` - 为 VPN 客户端禁用 IPv6
+- `--subnet-ipv4 <x.x.x.0>` - IPv4 VPN 子网（默认：`10.8.0.0`）
+- `--subnet-ipv6 <prefix>` - IPv6 VPN 子网（默认：`fd42:42:42:42::`）
+- `--port <num>` - OpenVPN 端口（默认：`1194`）
+- `--port-random` - 使用随机端口（49152-65535）
+- `--protocol <udp|tcp>` - 协议（默认：`udp`）
+- `--mtu <size>` - 隧道 MTU（默认：`1500`）
 
-**DNS Options:**
+**DNS 选项：**
 
-- `--dns <provider>` - DNS provider (default: `cloudflare`). Options: `system`, `unbound`, `cloudflare`, `quad9`, `quad9-uncensored`, `fdn`, `dnswatch`, `opendns`, `google`, `yandex`, `adguard`, `nextdns`, `custom`
-- `--dns-primary <ip>` - Custom primary DNS (requires `--dns custom`)
-- `--dns-secondary <ip>` - Custom secondary DNS (requires `--dns custom`)
+- `--dns <provider>` - DNS 提供商（默认：`cloudflare`）。选项：`system`, `unbound`, `cloudflare`, `quad9`, `quad9-uncensored`, `fdn`, `dnswatch`, `opendns`, `google`, `yandex`, `adguard`, `nextdns`, `custom`
+- `--dns-primary <ip>` - 自定义主 DNS（需要 `--dns custom`）
+- `--dns-secondary <ip>` - 自定义备用 DNS（需要 `--dns custom`）
 
-**Security Options:**
+**安全选项：**
 
-- `--cipher <cipher>` - Data cipher (default: `AES-128-GCM`). Options: `AES-128-GCM`, `AES-192-GCM`, `AES-256-GCM`, `AES-128-CBC`, `AES-192-CBC`, `AES-256-CBC`, `CHACHA20-POLY1305`
-- `--cert-type <ecdsa|rsa>` - Certificate type (default: `ecdsa`)
-- `--cert-curve <curve>` - ECDSA curve (default: `prime256v1`). Options: `prime256v1`, `secp384r1`, `secp521r1`
-- `--rsa-bits <2048|3072|4096>` - RSA key size (default: `2048`)
-- `--hmac <alg>` - HMAC algorithm (default: `SHA256`). Options: `SHA256`, `SHA384`, `SHA512`
-- `--tls-sig <mode>` - TLS mode (default: `crypt-v2`). Options: `crypt-v2`, `crypt`, `auth`
-- `--auth-mode <mode>` - Authentication mode (default: `pki`). Options: `pki` (CA-based), `fingerprint` (peer-fingerprint, requires OpenVPN 2.6+)
-- `--tls-version-min <1.2|1.3>` - Minimum TLS version (default: `1.2`)
-- `--tls-ciphersuites <list>` - TLS 1.3 cipher suites, colon-separated (default: `TLS_AES_256_GCM_SHA384:TLS_AES_128_GCM_SHA256:TLS_CHACHA20_POLY1305_SHA256`)
-- `--tls-groups <list>` - Key exchange groups, colon-separated (default: `X25519:prime256v1:secp384r1:secp521r1`)
-- `--server-cert-days <n>` - Server cert validity in days (default: `3650`)
+- `--cipher <cipher>` - 数据加密算法（默认：`AES-128-GCM`）。选项：`AES-128-GCM`, `AES-192-GCM`, `AES-256-GCM`, `AES-128-CBC`, `AES-192-CBC`, `AES-256-CBC`, `CHACHA20-POLY1305`
+- `--cert-type <ecdsa|rsa>` - 证书类型（默认：`ecdsa`）
+- `--cert-curve <curve>` - ECDSA 曲线（默认：`prime256v1`）。选项：`prime256v1`, `secp384r1`, `secp521r1`
+- `--rsa-bits <2048|3072|4096>` - RSA 密钥大小（默认：`2048`）
+- `--hmac <alg>` - HMAC 算法（默认：`SHA256`）。选项：`SHA256`, `SHA384`, `SHA512`
+- `--tls-sig <mode>` - TLS 模式（默认：`crypt-v2`）。选项：`crypt-v2`, `crypt`, `auth`
+- `--auth-mode <mode>` - 认证模式（默认：`pki`）。选项：`pki`（基于 CA），`fingerprint`（对等指纹，需要 OpenVPN 2.6+）
+- `--tls-version-min <1.2|1.3>` - 最低 TLS 版本（默认：`1.2`）
+- `--tls-ciphersuites <list>` - TLS 1.3 密码套件，用冒号分隔（默认：`TLS_AES_256_GCM_SHA384:TLS_AES_128_GCM_SHA256:TLS_CHACHA20_POLY1305_SHA256`）
+- `--tls-groups <list>` - 密钥交换组，用冒号分隔（默认：`X25519:prime256v1:secp384r1:secp521r1`）
+- `--server-cert-days <n>` - 服务器证书有效期（天）（默认：`3650`）
 
-**Client Options:**
+**客户端选项：**
 
-- `--client <name>` - Initial client name (default: `client`)
-- `--client-password [pass]` - Password-protect client key (default: no password)
-- `--client-cert-days <n>` - Client cert validity in days (default: `3650`)
-- `--no-client` - Skip initial client creation
+- `--client <name>` - 初始客户端名称（默认：`client`）
+- `--client-password [pass]` - 密码保护客户端密钥（默认：无密码）
+- `--client-cert-days <n>` - 客户端证书有效期（天）（默认：`3650`）
+- `--no-client` - 跳过初始客户端创建
 
-**Other Options:**
+**其他选项：**
 
-- `--multi-client` - Allow same cert on multiple devices (default: disabled)
+- `--multi-client` - 允许在多个设备上使用相同证书（默认：禁用）
 
-#### Automation Examples
+#### 自动化示例
 
-**Batch client creation:**
+**批量创建客户端：**
 
 ```bash
 #!/bin/bash
@@ -346,7 +346,7 @@ for user in alice bob charlie; do
 done
 ```
 
-**Create clients from a file:**
+**从文件创建客户端：**
 
 ```bash
 #!/bin/bash
@@ -355,187 +355,187 @@ while read -r user; do
 done < users.txt
 ```
 
-**JSON output for scripting:**
+**用于脚本编写的 JSON 输出：**
 
 ```bash
-# Get client list as JSON
+# 获取客户端列表（JSON 格式）
 ./openvpn-install.sh client list --format json | jq '.clients[] | select(.status == "valid")'
 
-# Get connected clients as JSON
+# 获取已连接客户端（JSON 格式）
 ./openvpn-install.sh server status --format json
 ```
 
-## Fork
+## 分支说明
 
-This script is based on the great work of [Nyr and its contributors](https://github.com/Nyr/openvpn-install).
+这个脚本基于 [Nyr 和其贡献者](https://github.com/Nyr/openvpn-install) 的出色工作。
 
-Since 2016, the two scripts have diverged and are not alike anymore, especially under the hood. The main goal of the script was enhanced security. But since then, the script has been completely rewritten and a lot a features have been added. The script is only compatible with recent distributions though, so if you need to use a very old server or client, I advise using Nyr's script.
+自 2016 年以来，这两个脚本已经分道扬镳，不再相似，尤其是在底层实现上。该脚本的主要目标是增强安全性。但从那时起，该脚本已经完全重写，并添加了许多功能。不过，该脚本仅兼容较新的发行版，因此如果您需要使用非常旧的服务器或客户端，我建议使用 Nyr 的脚本。
 
-## FAQ
+## 常见问题 (FAQ)
 
-More Q&A in [FAQ.md](FAQ.md).
+更多问答请查看 [FAQ.md](FAQ.md)。
 
-**Q:** Which provider do you recommend?
+**问：** 您推荐哪个提供商？
 
-**A:** I recommend these:
+**答：** 我推荐以下提供商：
 
-- [Vultr](https://www.vultr.com/?ref=8948982-8H): Worldwide locations, IPv6 support, starting at \$2.5/month
-- [Hetzner](https://hetzner.cloud/?ref=ywtlvZsjgeDq): Worldwide locations, IPv6, 20 TB of traffic, starting at €3.59/month
-- [Digital Ocean](https://m.do.co/c/ed0ba143fe53): Worldwide locations, IPv6 support, starting at \$4/month
-
----
-
-**Q:** Which OpenVPN client do you recommend?
-
-**A:** If possible, an official OpenVPN 2.4 client.
-
-- Windows: [The official OpenVPN community client](https://openvpn.net/index.php/download/community-downloads.html).
-- Linux: The `openvpn` package from your distribution. There is an [official APT repository](https://community.openvpn.net/openvpn/wiki/OpenvpnSoftwareRepos) for Debian/Ubuntu based distributions.
-- macOS: [Tunnelblick](https://tunnelblick.net/), [Viscosity](https://www.sparklabs.com/viscosity/), [OpenVPN for Mac](https://openvpn.net/client-connect-vpn-for-mac-os/).
-- Android: [OpenVPN for Android](https://play.google.com/store/apps/details?id=de.blinkt.openvpn).
-- iOS: [The official OpenVPN Connect client](https://itunes.apple.com/us/app/openvpn-connect/id590379981).
+- [Vultr](https://www.vultr.com/?ref=8948982-8H)：全球 locations，支持 IPv6，起价 \$2.5/月
+- [Hetzner](https://hetzner.cloud/?ref=ywtlvZsjgeDq)：全球 locations，支持 IPv6，20 TB 流量，起价 €3.59/月
+- [Digital Ocean](https://m.do.co/c/ed0ba143fe53)：全球 locations，支持 IPv6，起价 \$4/月
 
 ---
 
-**Q:** Am I safe from the NSA by using your script?
+**问：** 您推荐哪个 OpenVPN 客户端？
 
-**A:** Please review your threat models. Even if this script has security in mind and uses state-of-the-art encryption, you shouldn't be using a VPN if you want to hide from the NSA.
+**答：** 如果可能，建议使用官方的 OpenVPN 2.4 客户端。
+
+- Windows：[官方 OpenVPN 社区客户端](https://openvpn.net/index.php/download/community-downloads.html)。
+- Linux：来自您发行版的 `openvpn` 包。Debian/Ubuntu 基于的发行版有一个 [官方 APT 仓库](https://community.openvpn.net/openvpn/wiki/OpenvpnSoftwareRepos)。
+- macOS：[Tunnelblick](https://tunnelblick.net/)、[Viscosity](https://www.sparklabs.com/viscosity/)、[OpenVPN for Mac](https://openvpn.net/client-connect-vpn-for-mac-os/)。
+- Android：[OpenVPN for Android](https://play.google.com/store/apps/details?id=de.blinkt.openvpn)。
+- iOS：[官方 OpenVPN Connect 客户端](https://itunes.apple.com/us/app/openvpn-connect/id590379981)。
 
 ---
 
-**Q:** Is there an OpenVPN documentation?
+**问：** 使用您的脚本，我能避开 NSA 的监控吗？
 
-**A:** Yes, please head to the [OpenVPN Manual](https://openvpn.net/community-docs/community-articles/openvpn-2-6-manual.html), which references all the options.
+**答：** 请评估您的威胁模型。即使这个脚本考虑了安全性并使用了最先进的加密技术，如果您想躲避 NSA，VPN 可能不是您的最佳选择。
 
 ---
 
-More Q&A in [FAQ.md](FAQ.md).
+**问：** 有 OpenVPN 文档吗？
 
-## Contributing
+**答：** 是的，请查看 [OpenVPN 手册](https://openvpn.net/community-docs/community-articles/openvpn-2-6-manual.html)，其中包含所有选项的参考。
 
-### Discuss changes
+---
 
-Please open an issue before submitting a PR if you want to discuss a change, especially if it's a big one.
+更多问答请查看 [FAQ.md](FAQ.md)。
 
-## Security and Encryption
+## 贡献
+
+### 讨论变更
+
+如果您想讨论变更，特别是重大变更，请在提交 PR 前先打开一个 issue。
+
+## 安全性和加密
 
 > [!NOTE]
-> This script was created in 2016 when OpenVPN's defaults were quite weak. Back then, customising encryption settings was essential for a secure setup. Since then, OpenVPN has significantly improved its defaults, but the script still offers customisation options.
+> 这个脚本创建于 2016 年，当时 OpenVPN 的默认设置相当薄弱。在那个时候，自定义加密设置对于安全的配置至关重要。从那时起，OpenVPN 已经显著改进了其默认设置，但该脚本仍然提供自定义选项。
 
-OpenVPN 2.3 and earlier shipped with outdated defaults like Blowfish (BF-CBC), TLS 1.0, and SHA1. Each major release since has brought significant improvements:
+OpenVPN 2.3 及更早版本使用过时的默认设置，如 Blowfish (BF-CBC)、TLS 1.0 和 SHA1。此后的每个主要版本都带来了显著的改进：
 
-- **OpenVPN 2.4** (2016): Added ECDSA, ECDH, AES-GCM, NCP (cipher negotiation), and tls-crypt
-- **OpenVPN 2.5** (2020): Default cipher changed from BF-CBC to AES-256-GCM:AES-128-GCM, added ChaCha20-Poly1305, tls-crypt-v2, and TLS 1.3 support
-- **OpenVPN 2.6** (2023): TLS 1.2 minimum by default, compression blocked by default, `--peer-fingerprint` for PKI-less setups, and DCO kernel acceleration
+- **OpenVPN 2.4** (2016)：添加了 ECDSA、ECDH、AES-GCM、NCP（密码协商）和 tls-crypt
+- **OpenVPN 2.5** (2020)：默认密码从 BF-CBC 更改为 AES-256-GCM:AES-128-GCM，添加了 ChaCha20-Poly1305、tls-crypt-v2 和 TLS 1.3 支持
+- **OpenVPN 2.6** (2023)：默认最低 TLS 版本为 1.2，默认阻止压缩，用于无 PKI 设置的 `--peer-fingerprint`，以及 DCO 内核加速
 
-If you want more information about an option mentioned below, head to the [OpenVPN manual](https://community.openvpn.net/openvpn/wiki/Openvpn24ManPage). It is very complete.
+如果您想了解更多关于以下提到的选项的信息，请查看 [OpenVPN 手册](https://community.openvpn.net/openvpn/wiki/Openvpn24ManPage)。它非常完整。
 
-Certificate and PKI management is handled by [Easy-RSA](https://github.com/OpenVPN/easy-rsa). Default parameters are in the [vars.example](https://github.com/OpenVPN/easy-rsa/blob/v3.2.2/easyrsa3/vars.example) file.
+证书和 PKI 管理由 [Easy-RSA](https://github.com/OpenVPN/easy-rsa) 处理。默认参数位于 [vars.example](https://github.com/OpenVPN/easy-rsa/blob/v3.2.2/easyrsa3/vars.example) 文件中。
 
-### Compression
+### 压缩
 
-This script used to support LZ4 and LZO compression algorithms, but discouraged their use due to the [VORACLE attack](https://community.openvpn.net/Security%20Announcements/VORACLE) vulnerability.
+这个脚本曾经支持 LZ4 和 LZO 压缩算法，但由于 [VORACLE 攻击](https://community.openvpn.net/Security%20Announcements/VORACLE) 漏洞而不推荐使用它们。
 
-OpenVPN 2.6+ defaults `--allow-compression` to `no`, blocking even server-pushed compression. Now that OpenVPN is removing compression support entirely, this script no longer supports it.
+OpenVPN 2.6+ 将 `--allow-compression` 默认为 `no`，甚至阻止服务器推送的压缩。现在 OpenVPN 正在完全移除压缩支持，因此这个脚本不再支持压缩。
 
-### TLS version
+### TLS 版本
 
 > [!NOTE]
-> OpenVPN 2.6+ defaults to TLS 1.2 minimum. Prior versions accepted TLS 1.0 by default.
+> OpenVPN 2.6+ 默认最低 TLS 版本为 1.2。之前的版本默认接受 TLS 1.0。
 
-OpenVPN 2.5 and earlier accepted TLS 1.0 by default, which is nearly [20 years old](https://en.wikipedia.org/wiki/Transport_Layer_Security#TLS_1.0).
+OpenVPN 2.5 及更早版本默认接受 TLS 1.0，该版本已有近 [20 年历史](https://en.wikipedia.org/wiki/Transport_Layer_Security#TLS_1.0)。
 
-This script defaults to `tls-version-min 1.2` for compatibility with all OpenVPN 2.4+ clients. You can optionally set `tls-version-min 1.3` for environments where all clients support TLS 1.3.
+为了与所有 OpenVPN 2.4+ 客户端兼容，该脚本默认使用 `tls-version-min 1.2`。您可以选择将 `tls-version-min` 设置为 1.3，适用于所有客户端都支持 TLS 1.3 的环境。
 
-**TLS 1.3 support** was added in OpenVPN 2.5 and requires OpenSSL 1.1.1+. TLS 1.3 offers improved security and performance with a simplified handshake.
+OpenVPN 2.5 中添加了 **TLS 1.3 支持**，需要 OpenSSL 1.1.1+。TLS 1.3 提供了改进的安全性和性能，并采用了简化的握手过程。
 
-The script configures TLS 1.3 cipher suites via `--tls-ciphersuites` (separate from the TLS 1.2 `--tls-cipher` option). The default TLS 1.3 cipher suites are:
+脚本通过 `--tls-ciphersuites` 配置 TLS 1.3 密码套件（与 TLS 1.2 的 `--tls-cipher` 选项分开）。默认的 TLS 1.3 密码套件包括：
 
 - `TLS_AES_256_GCM_SHA384`
 - `TLS_AES_128_GCM_SHA256`
 - `TLS_CHACHA20_POLY1305_SHA256`
 
-TLS 1.2 is supported since OpenVPN 2.3.3. TLS 1.3 is supported since OpenVPN 2.5.
+OpenVPN 2.3.3 开始支持 TLS 1.2。OpenVPN 2.5 开始支持 TLS 1.3。
 
-### Certificate
+### 证书
 
-OpenVPN uses an RSA certificate with a 2048 bits key by default.
+OpenVPN 默认使用带有 2048 位密钥的 RSA 证书。
 
-OpenVPN 2.4 added support for ECDSA. Elliptic curve cryptography is faster, lighter and more secure.
+OpenVPN 2.4 添加了对 ECDSA 的支持。椭圆曲线密码学更快、更轻量、更安全。
 
-This script provides:
+该脚本提供：
 
-- ECDSA: `prime256v1`/`secp384r1`/`secp521r1` curves
-- RSA: `2048`/`3072`/`4096` bits keys
+- ECDSA：`prime256v1`/`secp384r1`/`secp521r1` 曲线
+- RSA：`2048`/`3072`/`4096` 位密钥
 
-It defaults to ECDSA with `prime256v1`.
+它默认使用带有 `prime256v1` 曲线的 ECDSA。
 
-OpenVPN uses `SHA-256` as the signature hash by default, and so does the script. It provides no other choice as of now.
+OpenVPN 默认使用 `SHA-256` 作为签名哈希，脚本也是如此。目前它不提供其他选择。
 
-### Authentication Mode
+### 认证模式
 
-The script supports two authentication modes:
+该脚本支持两种认证模式：
 
-#### PKI Mode (default)
+#### PKI 模式（默认）
 
-Traditional Certificate Authority (CA) based authentication. The server and all clients have certificates signed by the same CA. Client revocation is handled via Certificate Revocation Lists (CRL).
+传统的基于证书颁发机构（CA）的认证。服务器和所有客户端都有由同一个 CA 签名的证书。客户端吊销通过证书吊销列表（CRL）处理。
 
-This is the recommended mode for larger deployments where you need:
+这是大型部署的推荐模式，当您需要：
 
-- Centralized certificate management
-- Standard CRL-based revocation
-- Compatibility with all OpenVPN versions
+- 集中式证书管理
+- 基于标准 CRL 的吊销
+- 与所有 OpenVPN 版本兼容
 
-#### Peer Fingerprint Mode (OpenVPN 2.6+)
+#### 对等指纹模式（OpenVPN 2.6+）
 
-A simplified WireGuard-like authentication model using SHA256 certificate fingerprints instead of a CA chain. Each peer (server and clients) has a self-signed certificate, and peers authenticate each other by verifying fingerprints.
+一种简化的类 WireGuard 认证模型，使用 SHA256 证书指纹而不是 CA 链。每个对等点（服务器和客户端）都有一个自签名证书，对等点通过验证指纹来相互认证。
 
 ```bash
-# Install with fingerprint mode
+# 使用指纹模式安装
 ./openvpn-install.sh install --auth-mode fingerprint
 ```
 
-Benefits:
+优势：
 
-- Simpler setup: No CA infrastructure needed
-- Easier to understand: Similar to SSH's `known_hosts` model
-- Ideal for small setups: Home networks, labs, small teams
+- 设置更简单：无需 CA 基础设施
+- 更容易理解：类似于 SSH 的 `known_hosts` 模型
+- 适合小型设置：家庭网络、实验室、小团队
 
-How it works:
+工作原理：
 
-1. Server generates a self-signed certificate and stores its fingerprint
-2. Each client generates a self-signed certificate
-3. Client fingerprints are added to the server's `<peer-fingerprint>` block
-4. Clients verify the server using the server's fingerprint
-5. Revocation removes the fingerprint from the server config (no CRL needed)
+1. 服务器生成自签名证书并存储其指纹
+2. 每个客户端生成自签名证书
+3. 客户端指纹被添加到服务器的 `<peer-fingerprint>` 块中
+4. 客户端使用服务器的指纹验证服务器
+5. 吊销操作从服务器配置中移除指纹（不需要 CRL）
 
-Trade-off: Revoking a client requires reloading OpenVPN (fingerprints are in server.conf). In PKI mode, the CRL file is re-read automatically on new connections.
+权衡：吊销客户端需要重新加载 OpenVPN（指纹在 server.conf 中）。在 PKI 模式下，CRL 文件会在新连接时自动重新读取。
 
-### Data channel
+### 数据通道
 
 > [!NOTE]
-> The default data channel cipher changed in OpenVPN 2.5. Prior versions defaulted to `BF-CBC`, while OpenVPN 2.5+ defaults to `AES-256-GCM:AES-128-GCM`. OpenVPN 2.6+ also includes `CHACHA20-POLY1305` in the default cipher list when available.
+> OpenVPN 2.5 中默认数据通道密码发生了变化。之前的版本默认使用 `BF-CBC`，而 OpenVPN 2.5+ 默认使用 `AES-256-GCM:AES-128-GCM`。OpenVPN 2.6+ 在可用时还将 `CHACHA20-POLY1305` 包含在默认密码列表中。
 
-By default, OpenVPN 2.4 and earlier used `BF-CBC` as the data channel cipher. Blowfish is an old (1993) and weak algorithm. Even the official OpenVPN documentation admits it.
+默认情况下，OpenVPN 2.4 及更早版本使用 `BF-CBC` 作为数据通道密码。Blowfish 是一种古老（1993 年）且较弱的算法。即使是官方的 OpenVPN 文档也承认这一点。
 
-> The default is BF-CBC, an abbreviation for Blowfish in Cipher Block Chaining mode.
+> 默认值是 BF-CBC，即 Blowfish in Cipher Block Chaining 模式的缩写。
 >
-> Using BF-CBC is no longer recommended, because of its 64-bit block size. This small block size allows attacks based on collisions, as demonstrated by SWEET32. See <https://community.openvpn.net/openvpn/wiki/SWEET32> for details.
-> Security researchers at INRIA published an attack on 64-bit block ciphers, such as 3DES and Blowfish. They show that they are able to recover plaintext when the same data is sent often enough, and show how they can use cross-site scripting vulnerabilities to send data of interest often enough. This works over HTTPS, but also works for HTTP-over-OpenVPN. See <https://sweet32.info/> for a much better and more elaborate explanation.
+> 不再推荐使用 BF-CBC，因为它的块大小为 64 位。这种小的块大小允许基于碰撞的攻击，如 SWEET32 所演示的那样。有关详细信息，请参见 <https://community.openvpn.net/openvpn/wiki/SWEET32>。
+> INRIA 的安全研究人员发表了一篇关于 64 位块密码（如 3DES 和 Blowfish）的攻击文章。他们表明，当相同的数据发送足够多次时，他们能够恢复明文，并展示了他们如何利用跨站点脚本漏洞发送足够多次的感兴趣数据。这适用于 HTTPS，也适用于 HTTP-over-OpenVPN。有关更好、更详细的解释，请参见 <https://sweet32.info/>。
 >
-> OpenVPN's default cipher, BF-CBC, is affected by this attack.
+> OpenVPN 的默认密码 BF-CBC 受到此攻击的影响。
 
-Indeed, AES is today's standard. It's the fastest and more secure cipher available today. [SEED](https://en.wikipedia.org/wiki/SEED) and [Camellia](<https://en.wikipedia.org/wiki/Camellia_(cipher)>) are not vulnerable to date but are slower than AES and relatively less trusted.
+确实，AES 是当今的标准。它是当今可用的最快、最安全的密码。[SEED](https://en.wikipedia.org/wiki/SEED) 和 [Camellia](<https://en.wikipedia.org/wiki/Camellia_(cipher)>) 到目前为止没有漏洞，但比 AES 慢，而且相对不太受信任。
 
-> Of the currently supported ciphers, OpenVPN currently recommends using AES-256-CBC or AES-128-CBC. OpenVPN 2.4 and newer will also support GCM. For 2.4+, we recommend using AES-256-GCM or AES-128-GCM.
+> 在当前支持的密码中，OpenVPN 当前建议使用 AES-256-CBC 或 AES-128-CBC。OpenVPN 2.4 及更新版本还将支持 GCM。对于 2.4+，我们建议使用 AES-256-GCM 或 AES-128-GCM。
 
-AES-256 is 40% slower than AES-128, and there isn't any real reason to use a 256 bits key over a 128 bits key with AES. (Source: [1](http://security.stackexchange.com/questions/14068/why-most-people-use-256-bit-encryption-instead-of-128-bit),[2](http://security.stackexchange.com/questions/6141/amount-of-simple-operations-that-is-safely-out-of-reach-for-all-humanity/6149#6149)). Moreover, AES-256 is more vulnerable to [Timing attacks](https://en.wikipedia.org/wiki/Timing_attack).
+AES-256 比 AES-128 慢 40%，而且使用 256 位密钥而不是 128 位密钥的 AES 没有任何实际原因。（来源：[1](http://security.stackexchange.com/questions/14068/why-most-people-use-256-bit-encryption-instead-of-128-bit),[2](http://security.stackexchange.com/questions/6141/amount-of-simple-operations-that-is-safely-out-of-reach-for-all-humanity/6149#6149)）。此外，AES-256 更容易受到 [时序攻击](https://en.wikipedia.org/wiki/Timing_attack) 的影响。
 
-AES-GCM is an [AEAD cipher](https://en.wikipedia.org/wiki/Authenticated_encryption) which means it simultaneously provides confidentiality, integrity, and authenticity assurances on the data.
+AES-GCM 是一种 [AEAD 密码](https://en.wikipedia.org/wiki/Authenticated_encryption)，这意味着它同时提供对数据的保密性、完整性和真实性保证。
 
-ChaCha20-Poly1305 is another AEAD cipher that provides similar security to AES-GCM. It is particularly useful on devices without hardware AES acceleration (AES-NI), such as older CPUs and many ARM-based devices, where it can be significantly faster than AES.
+ChaCha20-Poly1305 是另一种提供与 AES-GCM 类似安全性的 AEAD 密码。它在没有硬件 AES 加速（AES-NI）的设备上特别有用，例如较旧的 CPU 和许多基于 ARM 的设备，在这些设备上它可以比 AES 快得多。
 
-The script supports the following ciphers:
+该脚本支持以下密码：
 
 - `AES-128-GCM`
 - `AES-192-GCM`
@@ -543,145 +543,145 @@ The script supports the following ciphers:
 - `AES-128-CBC`
 - `AES-192-CBC`
 - `AES-256-CBC`
-- `CHACHA20-POLY1305` (requires OpenVPN 2.5+)
+- `CHACHA20-POLY1305`（需要 OpenVPN 2.5+）
 
-And defaults to `AES-128-GCM`.
+默认值为 `AES-128-GCM`。
 
-OpenVPN 2.4 added a feature called "NCP": _Negotiable Crypto Parameters_. It means you can provide a cipher suite like with HTTPS. It is set to `AES-256-GCM:AES-128-GCM` by default and overrides the `--cipher` parameter when used with an OpenVPN 2.4 client. For the sake of simplicity, the script sets `--cipher` (fallback for non-NCP clients), `--data-ciphers` (modern OpenVPN 2.5+ naming), and `--ncp-ciphers` (legacy alias for OpenVPN 2.4 compatibility) to the cipher chosen above.
+OpenVPN 2.4 添加了一个称为 "NCP" 的功能：_Negotiable Crypto Parameters_（可协商加密参数）。这意味着您可以像 HTTPS 一样提供密码套件。默认设置为 `AES-256-GCM:AES-128-GCM`，当与 OpenVPN 2.4 客户端一起使用时，会覆盖 `--cipher` 参数。为了简单起见，脚本将 `--cipher`（非 NCP 客户端的回退）、`--data-ciphers`（现代 OpenVPN 2.5+ 命名）和 `--ncp-ciphers`（OpenVPN 2.4 兼容性的旧别名）设置为上面选择的密码。
 
-### Control channel
+### 控制通道
 
-OpenVPN 2.4 will negotiate the best cipher available by default (e.g ECDHE+AES-256-GCM)
+OpenVPN 2.4 默认会协商可用的最佳密码（例如 ECDHE+AES-256-GCM）
 
-#### TLS 1.2 ciphers (`--tls-cipher`)
+#### TLS 1.2 密码 (`--tls-cipher`)
 
-The script proposes the following options, depending on the certificate:
+根据证书，脚本提供以下选项：
 
-- ECDSA:
+- ECDSA：
   - `TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256`
   - `TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384`
-  - `TLS-ECDHE-ECDSA-WITH-CHACHA20-POLY1305-SHA256` (requires OpenVPN 2.5+)
-- RSA:
+  - `TLS-ECDHE-ECDSA-WITH-CHACHA20-POLY1305-SHA256`（需要 OpenVPN 2.5+）
+- RSA：
   - `TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256`
   - `TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384`
-  - `TLS-ECDHE-RSA-WITH-CHACHA20-POLY1305-SHA256` (requires OpenVPN 2.5+)
+  - `TLS-ECDHE-RSA-WITH-CHACHA20-POLY1305-SHA256`（需要 OpenVPN 2.5+）
 
-It defaults to `TLS-ECDHE-*-WITH-AES-128-GCM-SHA256`.
+默认值为 `TLS-ECDHE-*-WITH-AES-128-GCM-SHA256`。
 
-#### TLS 1.3 ciphers (`--tls-ciphersuites`)
+#### TLS 1.3 密码 (`--tls-ciphersuites`)
 
-When TLS 1.3 is negotiated, a separate set of cipher suites is used. These are configured via `--tls-ciphersuites` and use OpenSSL naming conventions:
+当协商 TLS 1.3 时，使用一组单独的密码套件。这些通过 `--tls-ciphersuites` 配置，并使用 OpenSSL 命名约定：
 
 - `TLS_AES_256_GCM_SHA384`
 - `TLS_AES_128_GCM_SHA256`
 - `TLS_CHACHA20_POLY1305_SHA256`
 
-By default, all three cipher suites are enabled. TLS 1.3 cipher suites are simpler because they don't include the key exchange algorithm (which is negotiated separately via key shares).
+默认情况下，所有三个密码套件都已启用。TLS 1.3 密码套件更简单，因为它们不包括密钥交换算法（通过密钥共享单独协商）。
 
-### Key exchange
+### 密钥交换
 
-OpenVPN historically defaulted to 2048-bit DH parameters for key exchange. This script used to offer both DH (with configurable key sizes) and ECDH as alternatives.
+OpenVPN 历史上默认使用 2048 位 DH 参数进行密钥交换。该脚本曾经提供 DH（可配置密钥大小）和 ECDH 作为替代方案。
 
-OpenVPN 2.4 added ECDH support, and OpenVPN 2.7 made `dh none` (ECDH) the default, as finite-field DH is being deprecated. Since ECDH is now universally supported and preferred, this script no longer offers traditional DH.
+OpenVPN 2.4 添加了 ECDH 支持，OpenVPN 2.7 将 `dh none`（ECDH）设为默认值，因为有限域 DH 正在被弃用。由于 ECDH 现在得到普遍支持和首选，该脚本不再提供传统 DH。
 
-The script configures `tls-groups` with the following preference list:
+脚本使用以下优先级列表配置 `tls-groups`：
 
 ```
 X25519:prime256v1:secp384r1:secp521r1
 ```
 
-- **X25519**: Fast, modern curve (Curve25519), widely supported
-- **prime256v1**: NIST P-256, most compatible
-- **secp384r1**: NIST P-384, higher security
-- **secp521r1**: NIST P-521, highest security
+- **X25519**：快速、现代的曲线（Curve25519），广泛支持
+- **prime256v1**：NIST P-256，最兼容
+- **secp384r1**：NIST P-384，更高安全性
+- **secp521r1**：NIST P-521，最高安全性
 
-You can customize this with `--tls-groups`.
+您可以使用 `--tls-groups` 自定义此设置。
 
-### HMAC digest algorithm
+### HMAC 摘要算法
 
-From the OpenVPN wiki, about `--auth`:
+来自 OpenVPN wiki，关于 `--auth`：
 
-> Authenticate data channel packets and (if enabled) tls-auth control channel packets with HMAC using message digest algorithm alg. (The default is SHA1 ). HMAC is a commonly used message authentication algorithm (MAC) that uses a data string, a secure hash algorithm, and a key, to produce a digital signature.
+> 使用消息摘要算法 alg 对数据通道数据包和（如果启用）tls-auth 控制通道数据包进行 HMAC 认证。（默认值为 SHA1）。HMAC 是一种常用的消息认证算法（MAC），它使用数据字符串、安全哈希算法和密钥来生成数字签名。
 >
-> If an AEAD cipher mode (e.g. GCM) is chosen, the specified --auth algorithm is ignored for the data channel, and the authentication method of the AEAD cipher is used instead. Note that alg still specifies the digest used for tls-auth.
+> 如果选择了 AEAD 密码模式（例如 GCM），则指定的 --auth 算法将被忽略，而是使用 AEAD 密码的认证方法。注意，alg 仍然指定用于 tls-auth 的摘要。
 
-The script provides the following choices:
+脚本提供以下选择：
 
 - `SHA256`
 - `SHA384`
 - `SHA512`
 
-It defaults to `SHA256`.
+默认值为 `SHA256`。
 
-### `tls-auth`, `tls-crypt`, and `tls-crypt-v2`
+### `tls-auth`、`tls-crypt` 和 `tls-crypt-v2`
 
-From the OpenVPN wiki, about `tls-auth`:
+来自 OpenVPN wiki，关于 `tls-auth`：
 
-> Add an additional layer of HMAC authentication on top of the TLS control channel to mitigate DoS attacks and attacks on the TLS stack.
+> 在 TLS 控制通道之上添加额外的 HMAC 认证层，以减轻 DoS 攻击和对 TLS 堆栈的攻击。
 >
-> In a nutshell, --tls-auth enables a kind of "HMAC firewall" on OpenVPN's TCP/UDP port, where TLS control channel packets bearing an incorrect HMAC signature can be dropped immediately without response.
+> 简而言之，--tls-auth 在 OpenVPN 的 TCP/UDP 端口上启用了一种 "HMAC 防火墙"，其中带有不正确 HMAC 签名的 TLS 控制通道数据包可以立即被丢弃而无需响应。
 
-About `tls-crypt`:
+关于 `tls-crypt`：
 
-> Encrypt and authenticate all control channel packets with the key from keyfile. (See --tls-auth for more background.)
+> 使用密钥文件中的密钥对所有控制通道数据包进行加密和认证。（有关更多背景信息，请参见 --tls-auth。）
 >
-> Encrypting (and authenticating) control channel packets:
+> 加密（和认证）控制通道数据包：
 >
-> - provides more privacy by hiding the certificate used for the TLS connection,
-> - makes it harder to identify OpenVPN traffic as such,
-> - provides "poor-man's" post-quantum security, against attackers who will never know the pre-shared key (i.e. no forward secrecy).
+> - 通过隐藏用于 TLS 连接的证书提供更多隐私，
+> - 使识别 OpenVPN 流量变得更加困难，
+> - 提供 "穷人版" 后量子安全性，针对永远不会知道预共享密钥的攻击者（即没有前向保密性）。
 
-So both provide an additional layer of security and mitigate DoS attacks. They aren't used by default by OpenVPN.
+因此，两者都提供了额外的安全层并减轻了 DoS 攻击。它们不是 OpenVPN 的默认设置。
 
-`tls-crypt` is an OpenVPN 2.4 feature that provides encryption in addition to authentication (unlike `tls-auth`). It is more privacy-friendly.
+`tls-crypt` 是 OpenVPN 2.4 的功能，除了认证外还提供加密（与 `tls-auth` 不同）。它更注重隐私。
 
-`tls-crypt-v2` is an OpenVPN 2.5 feature that builds on `tls-crypt` by using **per-client keys** instead of a shared key. Each client receives a unique key derived from a server key. This provides:
+`tls-crypt-v2` 是 OpenVPN 2.5 的功能，它在 `tls-crypt` 的基础上使用 **每个客户端密钥** 而不是共享密钥。每个客户端都会收到一个从服务器密钥派生的唯一密钥。这提供了：
 
-- **Better security**: If a client key is compromised, other clients are not affected
-- **Easier key management**: Client keys can be revoked individually without regenerating the server key
-- **Scalability**: Better suited for large deployments with many clients
+- **更好的安全性**：如果一个客户端密钥被泄露，其他客户端不受影响
+- **更简单的密钥管理**：客户端密钥可以单独吊销，无需重新生成服务器密钥
+- **可扩展性**：更适合具有许多客户端的大型部署
 
-The script supports all three options:
+脚本支持所有三个选项：
 
-- `tls-crypt-v2` (default): Per-client keys for better security
-- `tls-crypt`: Shared key for all clients, compatible with OpenVPN 2.4+
-- `tls-auth`: HMAC authentication only (no encryption), compatible with older clients
+- `tls-crypt-v2`（默认）：每个客户端密钥，提供更好的安全性
+- `tls-crypt`：所有客户端共享密钥，与 OpenVPN 2.4+ 兼容
+- `tls-auth`：仅 HMAC 认证（无加密），与旧客户端兼容
 
-### Certificate type verification (`remote-cert-tls`)
+### 证书类型验证 (`remote-cert-tls`)
 
-The server is configured with `remote-cert-tls client`, which requires connecting peers to have a certificate with the "TLS Web Client Authentication" extended key usage. This prevents a server certificate from being used to impersonate a client.
+服务器配置了 `remote-cert-tls client`，这要求连接的对等点具有带有 "TLS Web Client Authentication" 扩展密钥用法的证书。这可以防止服务器证书被用来冒充客户端。
 
-Similarly, clients are configured with `remote-cert-tls server` to ensure they only connect to servers presenting valid server certificates. This protects against an attacker with a valid client certificate setting up a rogue server.
+同样，客户端配置了 `remote-cert-tls server`，以确保它们只连接到呈现有效服务器证书的服务器。这可以防止拥有有效客户端证书的攻击者设置恶意服务器。
 
-### Data Channel Offload (DCO)
+### 数据通道卸载 (DCO)
 
-[Data Channel Offload](https://openvpn.net/as-docs/openvpn-data-channel-offload.html) (DCO) is a kernel acceleration feature that significantly improves OpenVPN performance by keeping data channel encryption/decryption in kernel space, eliminating costly context switches between user and kernel space for each packet.
+[数据通道卸载](https://openvpn.net/as-docs/openvpn-data-channel-offload.html) (DCO) 是一种内核加速功能，通过将数据通道加密/解密保持在内核空间，消除了每个数据包在用户空间和内核空间之间的昂贵上下文切换，从而显著提高了 OpenVPN 性能。
 
-DCO was merged into the Linux kernel 6.16 (April 2025).
+DCO 已合并到 Linux 内核 6.16（2025 年 4 月）中。
 
-**Requirements:**
+**要求：**
 
-- OpenVPN 2.6.0 or later
-- Linux kernel 6.16+ (built-in) or `ovpn-dco` kernel module
-- UDP protocol (TCP is not supported)
-- AEAD cipher (`AES-128-GCM`, `AES-256-GCM`, or `CHACHA20-POLY1305`)
+- OpenVPN 2.6.0 或更高版本
+- Linux 内核 6.16+（内置）或 `ovpn-dco` 内核模块
+- UDP 协议（不支持 TCP）
+- AEAD 密码（`AES-128-GCM`、`AES-256-GCM` 或 `CHACHA20-POLY1305`）
 
-The script's default settings (AES-128-GCM, UDP) are DCO-compatible. When DCO is available and the configuration is compatible, OpenVPN will automatically use it for improved performance.
+脚本的默认设置（AES-128-GCM、UDP）与 DCO 兼容。当 DCO 可用且配置兼容时，OpenVPN 将自动使用它以提高性能。
 
-**Note:** DCO must be supported on both the server and the client for full acceleration. Client support is available in OpenVPN 2.6+ (Linux, Windows, FreeBSD) and OpenVPN Connect 3.4+ (Windows). macOS does not currently support DCO, but clients can still connect to DCO-enabled servers with partial performance benefits on the server-side.
+**注意：** DCO 必须在服务器和客户端上都受支持才能实现完全加速。客户端支持可在 OpenVPN 2.6+（Linux、Windows、FreeBSD）和 OpenVPN Connect 3.4+（Windows）中获得。macOS 目前不支持 DCO，但客户端仍然可以连接到启用了 DCO 的服务器，并在服务器端获得部分性能优势。
 
-The script will display the DCO availability status during installation.
+脚本将在安装过程中显示 DCO 可用性状态。
 
-## Say thanks
+## 表示感谢
 
-You can [say thanks](https://saythanks.io/to/angristan) if you want!
+如果您愿意，您可以 [表示感谢](https://saythanks.io/to/angristan)！
 
-## Credits & Licence
+## 致谢和许可证
 
-Many thanks to the [contributors](https://github.com/Angristan/OpenVPN-install/graphs/contributors) and Nyr's original work.
+非常感谢 [贡献者](https://github.com/Angristan/OpenVPN-install/graphs/contributors) 和 Nyr 的原始工作。
 
-This project is under the [MIT Licence](https://raw.githubusercontent.com/Angristan/openvpn-install/master/LICENSE)
+该项目采用 [MIT 许可证](https://raw.githubusercontent.com/angristan/openvpn-install/master/LICENSE)
 
-## Star History
+## 星标历史
 
 [![Star History Chart](https://api.star-history.com/svg?repos=angristan/openvpn-install&type=Date)](https://star-history.com/#angristan/openvpn-install&Date)
